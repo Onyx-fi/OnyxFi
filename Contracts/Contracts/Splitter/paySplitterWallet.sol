@@ -1,0 +1,54 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.10;
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+// Tasks
+// contract created for a pair of address
+// Any payment recieved is automatically equally split and paid to the user
+
+contract paySplitterWallet is Ownable {
+    address[] public owners;
+    uint256 public noOfOwner;
+
+    event payRecieved(address indexed payer, uint256 amount);
+    event withdrawl(address indexed payee, uint256 amount);
+
+    constructor(
+        address[] memory _owners,
+        uint256 _nuOfOwner,
+        address _owner
+    ) {
+        owners = _owners;
+        noOfOwner = _nuOfOwner;
+        transferOwnership(_owner);
+    }
+
+    // to manually withdraw any funds available in the contract
+    function withdraw() external {
+        uint256 amount = address(this).balance;
+        uint256 amountPer = amount / noOfOwner;
+        for (uint256 i = 0; i < noOfOwner; i++) {
+            address _to = owners[i];
+            (bool success, ) = _to.call{value: amountPer}("");
+            require(success, "request not completed");
+            emit withdrawl(_to, amountPer);
+        }
+    }
+
+    /// @dev Function to receive Ether. msg.data must be empty
+    /// the pay recieved is automatically sent to the setAddresses at the time of deployment
+    receive() external payable {
+        emit payRecieved(msg.sender, msg.value);
+        uint256 amount = msg.value;
+        uint256 amountPer = amount / noOfOwner;
+        for (uint256 i = 0; i < noOfOwner; i++) {
+            address _to = owners[i];
+            (bool success, ) = _to.call{value: amountPer}("");
+            require(success, "request not completed");
+            emit withdrawl(_to, amountPer);
+        }
+    }
+
+    /// @dev Fallback function is called when msg.data is not empty
+    fallback() external payable {}
+}

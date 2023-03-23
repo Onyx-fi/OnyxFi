@@ -1,0 +1,23 @@
+
+  
+  .payCard {
+
+    /* position: absolute; */
+    /* right: 25px; */
+    /* top: 200px; */
+    transition: 0.2s ease-in-out;
+  }
+  
+  .payCard:hover {
+    /* transform: scale(1.02); */
+  }
+
+  @media screen and (max-width: 576px) {
+  
+    .payCard {
+      /* top: 260px; */
+      /* left: auto; */
+      /* right: auto; */
+    }
+
+  }
